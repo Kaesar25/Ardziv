@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { postAnnouncement, updateProfile } from '../lib/data'
-import { isCaptainOrStaff, LINE_LABELS, ROLE_LABELS, type SquadLine } from '../lib/types'
+import { isCaptainOrStaff, isStaff, LINE_LABELS, ROLE_LABELS, type SquadLine } from '../lib/types'
 import { Avatar, Chip, PageTitle } from '../components/ui'
 
 const ROADMAP = [
@@ -78,6 +79,9 @@ export default function More() {
         </div>
       </section>
 
+      {isStaff(profile) && (
+        <Link to="/membres" className="btn btn--secondary btn--sm">Gérer les membres et les rôles</Link>
+      )}
       <button className="btn btn--secondary btn--sm" onClick={signOut}>Se déconnecter</button>
       <p className="small muted center">Ardziv 2 · V1 · fait par et pour l'équipe</p>
     </>

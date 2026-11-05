@@ -28,7 +28,7 @@ export default function Join() {
       <div className="stack" style={{ gap: 8 }}>
         <span className="kicker">{session?.user.email}</span>
         <h1 className="display display--xl">Bienvenue dans le groupe</h1>
-        <p className="text-2">Entre ton prénom et le code d'équipe que le staff t'a donné.</p>
+        <p className="text-2">Entre ton prénom et le code d'équipe qu'on t'a donné (joueur ou staff).</p>
       </div>
       <form className="form" onSubmit={submit}>
         <label className="label" htmlFor="first">Prénom</label>
