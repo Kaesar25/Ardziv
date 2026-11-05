@@ -58,7 +58,7 @@ export default function Agenda() {
                 <div className={`datebox ${isMatch ? 'datebox--gold' : ''}`} style={{ height: '100%' }}><span>{fmtDow(e.starts_at)}</span><span>{fmtDay(e.starts_at)}</span></div>
                 <div className="stack" style={{ gap: 3, justifyContent: 'center' }}>
                   <div className="row row--between">
-                    <span className="eyebrow" style={{ color: isMatch ? 'var(--gold)' : undefined, letterSpacing: '0.08em' }}>{isMatch ? `Match${e.matchday ? ` · ${e.matchday}` : ''}` : e.type === 'training' ? 'Entraînement' : 'Événement'}</span>
+                    <span className="eyebrow" style={{ color: isMatch ? 'var(--gold)' : undefined, letterSpacing: '0.08em' }}>{isMatch ? `Match${e.matchday ? ` · ${e.matchday}` : ''}` : e.type === 'training' ? 'Entraînement' : e.category === 'club' ? 'Vie du club' : 'Événement'}</span>
                     <span className="small muted" style={{ fontWeight: 600 }}>{fmtTime(e.starts_at)}</span>
                   </div>
                   <span style={{ fontWeight: 600, textDecoration: e.status === 'cancelled' ? 'line-through' : 'none' }}>{e.title}{e.status && e.status !== 'scheduled' ? <span className="red" style={{ fontSize: 12, fontWeight: 700, marginLeft: 6 }}>{e.status === 'postponed' ? 'REPORTÉ' : 'ANNULÉ'}</span> : null}</span>
@@ -87,6 +87,7 @@ function NewEventForm({ onDone, byId }: { onDone: () => void; byId: string }) {
   const [location, setLocation] = useState('Stade Sévan')
   const [opponent, setOpponent] = useState('')
   const [home, setHome] = useState(true)
+  const [category, setCategory] = useState<'team' | 'club'>('team')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -96,7 +97,7 @@ function NewEventForm({ onDone, byId }: { onDone: () => void; byId: string }) {
     setError(null)
     try {
       const starts = new Date(`${date}T${time}:00`).toISOString()
-      const id = await createEvent({ type, title: type === 'match' && opponent ? (home ? `Ardziv 2 – ${opponent}` : `${opponent} – Ardziv 2`) : title, starts_at: starts, location, opponent: type === 'match' ? opponent : null, is_home: type === 'match' ? home : null, competition: type === 'match' ? 'Départemental 2' : null }, byId)
+      const id = await createEvent({ type, title: type === 'match' && opponent ? (home ? `Ardziv 2 – ${opponent}` : `${opponent} – Ardziv 2`) : title, starts_at: starts, location, opponent: type === 'match' ? opponent : null, is_home: type === 'match' ? home : null, competition: type === 'match' ? 'Départemental 2' : null, category: type === 'other' ? category : 'team' }, byId)
       void notify('event_created', id)
       onDone()
     } catch (e) {
@@ -115,7 +116,13 @@ function NewEventForm({ onDone, byId }: { onDone: () => void; byId: string }) {
           </button>
         ))}
       </div>
-      {type !== 'match' && <input className="input" placeholder="Titre" value={title} onChange={(e) => setTitle(e.target.value)} />}
+      {type !== 'match' && <input className="input" placeholder={type === 'other' && category === 'club' ? 'Ex. Repas du club, commémoration du 24 avril' : 'Titre'} value={title} onChange={(e) => setTitle(e.target.value)} />}
+      {type === 'other' && (
+        <div className="segmented" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <button className={`segmented__btn ${category === 'team' ? 'is-yes' : ''}`} onClick={() => setCategory('team')}>Équipe</button>
+          <button className={`segmented__btn ${category === 'club' ? 'is-yes' : ''}`} onClick={() => setCategory('club')}>Club et communauté</button>
+        </div>
+      )}
       {type === 'match' && (
         <>
           <input className="input" placeholder="Adversaire" value={opponent} onChange={(e) => setOpponent(e.target.value)} />

@@ -9,6 +9,7 @@ import webpush from 'npm:web-push@3.6.7'
 type Kind =
   | 'test' | 'squad_published' | 'remind' | 'event_created' | 'result' | 'announcement' | 'daily_reminders'
   | 'event_changed' | 'live_goal' | 'live_final' | 'poll_created' | 'duties_assigned' | 'lineup_published' | 'fine_added'
+  | 'program_published' | 'admin_reminder' | 'charter_updated' | 'idea_answered'
 type Role = 'player' | 'captain' | 'coach' | 'staff'
 
 interface Profile { id: string; first_name: string; role: Role; is_admin?: boolean }
@@ -91,7 +92,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'POST') return json({ error: 'method' }, 405)
 
-  let body: { kind?: Kind; event_id?: string; scorer?: string | null; minute?: number | null; poll_id?: string; profile_id?: string; label?: string; amount?: number; week?: string } = {}
+  let body: { kind?: Kind; event_id?: string; scorer?: string | null; minute?: number | null; poll_id?: string; profile_id?: string; label?: string; amount?: number; week?: string; title?: string; profile_ids?: string[] | null } = {}
   try { body = await req.json() } catch { return json({ error: 'bad_json' }, 400) }
   const kind = body.kind
 
@@ -105,6 +106,18 @@ Deno.serve(async (req) => {
     for (const e of (data ?? []) as Ev[]) {
       const ids = await nonResponders(e.id)
       sent += await sendTo(ids, { title: 'Tu viens ?', body: `${label(e)} — ${when(e.starts_at)}. Donne ta dispo en un clic.`, url: `/evenement/${e.id}`, tag: `dispo-${e.id}` })
+    }
+    // Ressenti : entraînements d'hier, joueurs présents qui n'ont pas encore répondu
+    const yesterday = new Date(now.getTime() - 30 * 3600_000)
+    const { data: tr } = await admin.from('events').select('*').eq('type', 'training').eq('status', 'scheduled').gte('starts_at', yesterday.toISOString()).lt('starts_at', now.toISOString())
+    for (const e of (tr ?? []) as Ev[]) {
+      const [{ data: present }, { data: fb }] = await Promise.all([
+        admin.from('availabilities').select('profile_id').eq('event_id', e.id).eq('status', 'yes'),
+        admin.from('training_feedback').select('profile_id').eq('event_id', e.id),
+      ])
+      const done = new Set(((fb ?? []) as { profile_id: string }[]).map((f) => f.profile_id))
+      const ids = ((present ?? []) as { profile_id: string }[]).map((a) => a.profile_id).filter((id) => !done.has(id))
+      sent += await sendTo(ids, { title: 'Ton ressenti d’hier ?', body: 'Fatigue et intensité de la séance, en 10 secondes.', url: `/evenement/${e.id}?onglet=ressenti`, tag: `ressenti-${e.id}` })
     }
     return json({ sent })
   }
@@ -235,6 +248,28 @@ Deno.serve(async (req) => {
       if (!body.profile_id) return json({ error: 'profile' }, 400)
       const amount = typeof body.amount === 'number' ? `${body.amount.toFixed(body.amount % 1 ? 2 : 0)} €` : ''
       const sent = await sendTo([body.profile_id], { title: 'Caisse de l’équipe', body: `${body.label ?? 'Nouvelle ligne'}${amount ? ` · ${amount}` : ''}`, url: '/groupe?onglet=caisse', tag: 'fine' })
+      return json({ sent })
+    }
+    case 'program_published': {
+      if (!allow(STAFF)) return json({ error: 'forbidden' }, 403)
+      const ids = Array.isArray(body.profile_ids) && body.profile_ids.length ? body.profile_ids : (await players()).map((p) => p.id)
+      const sent = await sendTo(ids, { title: 'Nouveau programme', body: body.title ?? 'Un programme t’attend dans Entraînement.', url: '/entrainement?onglet=programmes', tag: 'program' })
+      return json({ sent })
+    }
+    case 'admin_reminder': {
+      if (!allow(STAFF)) return json({ error: 'forbidden' }, 403)
+      const ids = Array.isArray(body.profile_ids) ? body.profile_ids : []
+      const sent = await sendTo(ids, { title: 'Ton dossier est incomplet', body: 'Licence ou certificat médical à régler. Le détail est dans Plus → Mon suivi.', url: '/plus', tag: 'admin' })
+      return json({ sent })
+    }
+    case 'charter_updated': {
+      if (!allow(STAFF)) return json({ error: 'forbidden' }, 403)
+      const sent = await sendTo(await everyone(sender.id), { title: 'Nouvelle version de la charte', body: 'Prends une minute pour la relire et la valider.', url: '/vestiaire', tag: 'charter' })
+      return json({ sent })
+    }
+    case 'idea_answered': {
+      if (!allow(STAFF)) return json({ error: 'forbidden' }, 403)
+      const sent = await sendTo(await everyone(sender.id), { title: 'Boîte à idées', body: 'Le staff a répondu à une idée du groupe.', url: '/vestiaire?onglet=idees', tag: 'idea' })
       return json({ sent })
     }
     default:

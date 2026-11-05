@@ -56,6 +56,7 @@ export async function disablePush(): Promise<void> {
 export type NotifyKind =
   | 'test' | 'squad_published' | 'remind' | 'event_created' | 'result' | 'announcement'
   | 'event_changed' | 'live_goal' | 'live_final' | 'poll_created' | 'duties_assigned' | 'lineup_published' | 'fine_added'
+  | 'program_published' | 'admin_reminder' | 'charter_updated' | 'idea_answered'
 
 /** Demande à la fonction Supabase d'envoyer les notifications. N'échoue jamais côté app. */
 export async function notify(kind: NotifyKind, eventId?: string, extra?: Record<string, unknown>): Promise<{ sent: number } | null> {

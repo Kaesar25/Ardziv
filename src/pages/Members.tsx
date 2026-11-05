@@ -7,7 +7,7 @@ import { isStaff, ROLE_LABELS, type MemberRole, type Profile } from '../lib/type
 import { Avatar, PageTitle, Skeleton } from '../components/ui'
 import { IconBack } from '../components/Icons'
 
-const ROLES: MemberRole[] = ['player', 'captain', 'coach', 'staff']
+const ROLES: MemberRole[] = ['player', 'captain', 'coach', 'staff', 'guest']
 
 export default function Members() {
   const { profile } = useAuth()
@@ -42,7 +42,7 @@ export default function Members() {
                 <span className="small muted">{p.position ?? ROLE_LABELS[p.role]}</span>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 4 }} className="segmented">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 4 }} className="segmented">
               {ROLES.map((r) => (
                 <button key={r} className={`segmented__btn ${p.role === r ? 'is-yes' : ''}`} style={{ minHeight: 38, fontSize: 12.5 }} disabled={busy === p.id || p.id === profile?.id || (p.is_admin && !profile?.is_admin)} onClick={() => setRole(p, r)}>
                   {ROLE_LABELS[r]}
@@ -52,7 +52,7 @@ export default function Members() {
           </div>
         ))}
       </div>
-      <p className="small muted">Tu ne peux pas changer ton propre rôle, pour éviter de te retirer l'accès par erreur. Le statut administrateur est réservé et ne peut être modifié par personne d'autre.</p>
+      <p className="small muted">Tu ne peux pas changer ton propre rôle, pour éviter de te retirer l'accès par erreur. Le statut administrateur est réservé et ne peut être modifié par personne d'autre. « Coach équipe 1 » donne au coach de la R1 un accès en lecture : stats, présences, forme des joueurs et mouvements entre les deux équipes.</p>
     </>
   )
 }

@@ -1,4 +1,4 @@
-export type MemberRole = 'player' | 'captain' | 'coach' | 'staff'
+export type MemberRole = 'player' | 'captain' | 'coach' | 'staff' | 'guest'
 export type SquadLine = 'GB' | 'DEF' | 'MIL' | 'ATT'
 export type EventType = 'training' | 'match' | 'other'
 export type Availability = 'yes' | 'maybe' | 'no'
@@ -31,6 +31,7 @@ export interface Standing {
 
 export interface TeamEvent {
   id: string
+  category?: 'team' | 'club'
   type: EventType
   title: string
   starts_at: string
@@ -104,6 +105,7 @@ export const ROLE_LABELS: Record<MemberRole, string> = {
   captain: 'Capitaine',
   coach: 'Entraîneur',
   staff: 'Staff',
+  guest: 'Coach équipe 1',
 }
 
 /** Droits du staff : entraîneurs, dirigeants, et l'administrateur. */
@@ -111,6 +113,10 @@ export const isStaff = (p: Profile | null) => !!p && (p.role === 'coach' || p.ro
 export const isCaptainOrStaff = (p: Profile | null) => !!p && (p.role === 'captain' || isStaff(p))
 /** Joue dans l'équipe : donne ses dispos, apparaît dans les convocations. */
 export const isPlayer = (p: Profile | null) => !!p && (p.role === 'player' || p.role === 'captain')
+/** Coach de l'équipe 1 : lecture seule des stats, présences et mouvements. */
+export const isGuest = (p: Profile | null) => !!p && p.role === 'guest'
+/** Peut consulter les données de suivi (présences, forme) sans forcément les modifier. */
+export const canViewStaffData = (p: Profile | null) => isStaff(p) || isGuest(p)
 export const roleLabel = (p: Profile) => (p.is_admin ? `${ROLE_LABELS[p.role]} · Admin` : ROLE_LABELS[p.role])
 
 /** Seuil d'avertissements à surveiller (à ajuster selon le règlement du District). */

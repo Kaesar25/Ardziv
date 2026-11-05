@@ -9,6 +9,8 @@ import MatchSheet from '../components/MatchSheet'
 import MatchDay from '../components/MatchDay'
 import Tactics from '../components/Tactics'
 import Carpool from '../components/Carpool'
+import { SessionFeedback, SessionPlan } from '../components/TrainingSession'
+import { publicUrl, shareLink } from '../lib/data4'
 import MotmVote from '../components/MotmVote'
 import { setEventStatus } from '../lib/data2'
 import { useSearchParams } from 'react-router-dom'
@@ -24,6 +26,7 @@ export default function EventDetail() {
   const { profile } = useAuth()
   const staff = isStaff(profile)
   const capOrStaff = isCaptainOrStaff(profile)
+  const [shared, setShared] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bench, setBench] = useState<Set<string>>(new Set())
@@ -89,8 +92,9 @@ export default function EventDetail() {
   }
 
   const who = event.opponent ?? event.title
-  type Tab = 'groupe' | 'jourj' | 'tactique' | 'covoit' | 'vote'
-  const tabs: [Tab, string][] = !isMatch ? [] : past
+  type Tab = 'groupe' | 'jourj' | 'tactique' | 'covoit' | 'vote' | 'seance' | 'ressenti'
+  const isTraining = event.type === 'training'
+  const tabs: [Tab, string][] = isTraining ? [['groupe', 'Présences'], ['seance', 'Séance'], ['ressenti', 'Ressenti']] : !isMatch ? [] : past
     ? [['groupe', 'Résultat'], ['vote', 'Homme du match'], ['tactique', 'Tactique']]
     : [['groupe', 'Groupe'], ['jourj', 'Jour J'], ['tactique', 'Tactique'], ['covoit', 'Covoiturage']]
   const tab = (tabs.some(([k]) => k === params.get('onglet')) ? params.get('onglet') : 'groupe') as Tab
@@ -132,6 +136,8 @@ export default function EventDetail() {
       {tab === 'tactique' && <Tactics event={event} me={profile} players={players} previous={previous} />}
       {tab === 'covoit' && <Carpool eventId={event.id} me={profile} profiles={profiles} />}
       {tab === 'vote' && <MotmVote event={event} me={profile} players={players} />}
+      {tab === 'seance' && <SessionPlan event={event} me={profile} />}
+      {tab === 'ressenti' && <SessionFeedback event={event} me={profile} profiles={profiles} />}
 
       {tab === 'groupe' && <>
 
@@ -200,6 +206,13 @@ export default function EventDetail() {
         })}
         {players.some((p) => !p.line) && <p className="small muted">Les joueurs sans poste apparaissent dans « Milieux ». Ils peuvent le régler dans « Plus → Mon profil ».</p>}
       </section>
+
+      {isMatch && (
+        <div className="row" style={{ gap: 8 }}>
+          <button className="btn btn--secondary btn--sm" onClick={async () => { const r = await shareLink(event.title, publicUrl(`/public/match/${event.id}`)); setShared(r === 'copied' ? 'Lien copié' : r === 'shared' ? 'Partagé' : null) }}>{shared ?? 'Partager aux familles'}</button>
+          <Link to="/visuels" className="btn btn--secondary btn--sm">Créer un visuel</Link>
+        </div>
+      )}
 
       {staff && !past && (
         statusForm ? (

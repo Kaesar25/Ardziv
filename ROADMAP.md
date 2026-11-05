@@ -33,7 +33,7 @@ Statut : ✅ livré · 🔧 en cours · ⏳ prévu.
 | Plan de match partagé la veille aux convoqués | ✅ |
 | Préparation de l'adversaire (forme, buts, aller) | ✅ |
 | Suivi des cartons avec alerte avant suspension | ✅ (en avance, livré avec la V1) |
-| Suspensions officielles : dates de purge | 🔧 alerte cartons livrée ; dates de purge à saisir selon le District |
+| Suspensions officielles : dates de purge | ✅ calculées sur le calendrier, reports exclus |
 | Vote de l'homme du match, classement sur la saison | ✅ |
 | Caisse : cotisations, amendes, tableau public | ✅ |
 | Tâches tournantes (maillots, chasubles, ballons, collation) | ✅ |
@@ -41,30 +41,30 @@ Statut : ✅ livré · 🔧 en cours · ⏳ prévu.
 | Alerte terrain impraticable / match reporté | ✅ |
 | Fonctionnement hors ligne (saisie au bord du terrain) | 🔧 l'app s'ouvre hors ligne ; la saisie sans réseau reste à faire |
 
-## V3 — Management, entraînement, identité, communication
+## V3 — Management, entraînement, identité, communication ✅
 | Fonctionnalité | Statut |
 |---|---|
-| Lien avec l'équipe 1 : montées, descentes, accès lecture au coach de la 1 | ⏳ |
-| Ressenti après l'entraînement (fatigue, intensité) | ⏳ |
-| Objectifs individuels et entretiens, espace staff privé | ⏳ |
-| Bibliothèque d'exercices avec schémas | ⏳ |
-| Planification de la semaine d'entraînement (objectif du jour) | ⏳ |
-| Tests physiques et courbes de progression | ⏳ |
-| Programmes individuels (prépa été, reprise, extra) | ⏳ |
-| Vidéo : clips annotés, « tes actions du match », séquences pour la causerie | ⏳ |
-| Page histoire du club (1924, Ardziv 1964, Sévan, N3) | ⏳ |
-| Fil d'actualité et galerie photo | ⏳ |
-| Quiz sur l'histoire du club | ⏳ |
-| « Ardziv Wrapped » de fin de saison | ⏳ |
-| Visuels générés automatiquement (affiche, score, homme du match) | ⏳ |
-| Page publique du match à partager | ⏳ |
-| Fiche de présentation de l'équipe | ⏳ |
-| Espace sponsors et suivi des contreparties | ⏳ |
-| Cagnottes | ⏳ |
-| Dossiers administratifs : licences, certificats, mutations, relances | ⏳ |
-| Charte d'équipe lue et validée | ⏳ |
-| Boîte à idées et sondage d'humeur anonymes | ⏳ |
-| Événements hors terrain, vie communautaire arménienne de Marseille | ⏳ |
+| Lien avec l'équipe 1 : montées, descentes, accès lecture au coach de la 1 (rôle « Coach équipe 1 ») | ✅ |
+| Ressenti après l'entraînement (fatigue, intensité) + rappel le lendemain matin | ✅ |
+| Objectifs individuels et entretiens, espace staff privé | ✅ |
+| Bibliothèque d'exercices avec schémas (6 exercices de départ) | ✅ |
+| Planification de la semaine d'entraînement (objectif du jour, ateliers) | ✅ |
+| Tests physiques et courbes de progression | ✅ |
+| Programmes individuels (prépa été, reprise, extra) | ✅ |
+| Vidéo : clips annotés, « tes actions du match », séquences pour la causerie (liens YouTube, Drive, Veo) | ✅ |
+| Page histoire du club (1924, Ardziv 1964, Sévan, N3) | ✅ |
+| Fil d'actualité et galerie photo | ✅ |
+| Quiz sur l'histoire du club | ✅ |
+| « Ardziv Wrapped » de fin de saison | ✅ (se remplit au fil de la saison) |
+| Visuels générés automatiquement (affiche, score, homme du match) | ✅ |
+| Page publique du match à partager | ✅ |
+| Fiche de présentation de l'équipe (page publique) | ✅ |
+| Espace sponsors et suivi des contreparties | ✅ |
+| Cagnottes | ✅ |
+| Dossiers administratifs : licences, certificats, mutations, relances | ✅ |
+| Charte d'équipe lue et validée | ✅ |
+| Boîte à idées et sondage d'humeur anonymes | ✅ |
+| Événements hors terrain, vie communautaire arménienne de Marseille | ✅ (catégorie « Vie du club » dans l'agenda) |
 
 ## Hors périmètre (décidé le 5 nov. 2026)
 Temps de jeu en match, tour de rôle de l'arbitre de touche, cartes façon FUT, badges, défis du mois, budget d'équipe, boutique, parrainage, composition proposée automatiquement, compte rendu de match automatique.

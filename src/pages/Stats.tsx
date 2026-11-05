@@ -8,6 +8,7 @@ import { isCaptainOrStaff, isPlayer, isStaff, YELLOW_ALERT, type MatchStat, type
 import { PageTitle, Skeleton } from '../components/ui'
 import StandingsTable from '../components/StandingsTable'
 import { fetchMotmSeason } from '../lib/data2'
+import Suspensions from '../components/Suspensions'
 
 export default function Stats() {
   const { profile } = useAuth()
@@ -76,6 +77,8 @@ export default function Stats() {
           <p className="small" style={{ color: '#E0B9B1' }}>Vérifie le barème de suspension du District de Provence avant le prochain match.</p>
         </section>
       )}
+
+      <Suspensions me={profile} profiles={profiles} matches={matches} />
 
       <section className="card" style={{ padding: '16px 18px', gap: 12 }}>
         <div className="row row--between">

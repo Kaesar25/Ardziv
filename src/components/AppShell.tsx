@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { roleLabel } from '../lib/types'
@@ -37,7 +38,9 @@ export default function AppShell() {
         )}
       </header>
       <main className="shell__main">
-        <Outlet />
+        <Suspense fallback={<div className="skeleton" style={{ minHeight: 240 }} />}>
+          <Outlet />
+        </Suspense>
       </main>
       <nav className="shell__nav">
         {NAV.map(({ to, label, Icon, end }) => (

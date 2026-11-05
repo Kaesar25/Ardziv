@@ -9,6 +9,7 @@ import { IconArrow } from '../components/Icons'
 import PushCard from '../components/PushCard'
 import StandingsTable from '../components/StandingsTable'
 import HomeTodo from '../components/HomeTodo'
+import HomeExtras from '../components/HomeExtras'
 
 export default function Home() {
   const { profile } = useAuth()
@@ -93,6 +94,7 @@ export default function Home() {
       )}
 
       <HomeTodo me={profile} />
+      <HomeExtras me={profile} profiles={profiles} />
 
       <PushCard />
 
