@@ -12,6 +12,7 @@ import EventDetail from './pages/EventDetail'
 import Group from './pages/Group'
 import Stats from './pages/Stats'
 import More from './pages/More'
+import Members from './pages/Members'
 
 function Gate() {
   const { session, profile, loading } = useAuth()
@@ -27,6 +28,7 @@ function Gate() {
         <Route path="groupe" element={<Group />} />
         <Route path="stats" element={<Stats />} />
         <Route path="plus" element={<More />} />
+        <Route path="membres" element={<Members />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
