@@ -53,12 +53,14 @@ export async function disablePush(): Promise<void> {
   await sub.unsubscribe()
 }
 
-export type NotifyKind = 'test' | 'squad_published' | 'remind' | 'event_created' | 'result' | 'announcement'
+export type NotifyKind =
+  | 'test' | 'squad_published' | 'remind' | 'event_created' | 'result' | 'announcement'
+  | 'event_changed' | 'live_goal' | 'live_final' | 'poll_created' | 'duties_assigned' | 'lineup_published' | 'fine_added'
 
 /** Demande à la fonction Supabase d'envoyer les notifications. N'échoue jamais côté app. */
-export async function notify(kind: NotifyKind, eventId?: string): Promise<{ sent: number } | null> {
+export async function notify(kind: NotifyKind, eventId?: string, extra?: Record<string, unknown>): Promise<{ sent: number } | null> {
   try {
-    const { data, error } = await supabase.functions.invoke('notify', { body: { kind, event_id: eventId } })
+    const { data, error } = await supabase.functions.invoke('notify', { body: { kind, event_id: eventId, ...extra } })
     if (error) return null
     return data as { sent: number }
   } catch {

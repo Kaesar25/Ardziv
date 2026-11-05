@@ -13,6 +13,7 @@ import Group from './pages/Group'
 import Stats from './pages/Stats'
 import More from './pages/More'
 import Members from './pages/Members'
+import TacticsLibrary from './pages/TacticsLibrary'
 
 function Gate() {
   const { session, profile, loading } = useAuth()
@@ -29,6 +30,7 @@ function Gate() {
         <Route path="stats" element={<Stats />} />
         <Route path="plus" element={<More />} />
         <Route path="membres" element={<Members />} />
+        <Route path="tactique" element={<TacticsLibrary />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

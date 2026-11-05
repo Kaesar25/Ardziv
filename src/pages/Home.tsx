@@ -8,6 +8,7 @@ import { Avatar, Chip, Segmented, Skeleton } from '../components/ui'
 import { IconArrow } from '../components/Icons'
 import PushCard from '../components/PushCard'
 import StandingsTable from '../components/StandingsTable'
+import HomeTodo from '../components/HomeTodo'
 
 export default function Home() {
   const { profile } = useAuth()
@@ -70,7 +71,7 @@ export default function Home() {
         <section className="card">
           <div className="row row--between">
             <span className="eyebrow">Prochain match{next.matchday ? ` · ${next.matchday}` : ''}</span>
-            <Chip tone="gold">{countdownLabel(next.starts_at)}</Chip>
+            {(next.status ?? 'scheduled') === 'scheduled' ? <Chip tone="gold">{countdownLabel(next.starts_at)}</Chip> : <Chip tone="red">{next.status === 'postponed' ? 'Reporté' : 'Annulé'}</Chip>}
           </div>
           <MatchHeader home={!!next.is_home} opponent={next.opponent ?? next.title} time={fmtTime(next.starts_at)} date={fmtDate(next.starts_at)} />
           <div className="row" style={{ justifyContent: 'center', flexWrap: 'wrap', gap: 6 }}>
@@ -90,6 +91,8 @@ export default function Home() {
           </Link>
         </section>
       )}
+
+      <HomeTodo me={profile} />
 
       <PushCard />
 

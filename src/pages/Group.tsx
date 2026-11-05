@@ -4,6 +4,13 @@ import { useAsync } from '../lib/useAsync'
 import { fetchAvailabilities, fetchEvents, fetchProfiles } from '../lib/data'
 import { isStaff, LINE_LABELS, ROLE_LABELS, type SquadLine } from '../lib/types'
 import { Avatar, PageTitle, Skeleton } from '../components/ui'
+import Treasury from '../components/Treasury'
+import Duties from '../components/Duties'
+import Polls from '../components/Polls'
+import { useSearchParams } from 'react-router-dom'
+
+type Tab = 'effectif' | 'caisse' | 'taches' | 'sondages'
+const TABS: [Tab, string][] = [['effectif', 'Effectif'], ['caisse', 'Caisse'], ['taches', 'Tâches'], ['sondages', 'Sondages']]
 
 const LINES: SquadLine[] = ['GB', 'DEF', 'MIL', 'ATT']
 
@@ -11,6 +18,8 @@ export default function Group() {
   const { profile } = useAuth()
   const staff = isStaff(profile)
   const [line, setLine] = useState<SquadLine | 'all'>('all')
+  const [params, setParams] = useSearchParams()
+  const tab = (params.get('onglet') as Tab) || 'effectif'
 
   const q = useAsync(async () => {
     const profiles = await fetchProfiles()
@@ -31,6 +40,15 @@ export default function Group() {
   return (
     <>
       <PageTitle kicker={`${profiles.filter((p) => p.role === 'player' || p.role === 'captain').length} joueurs · ${profiles.filter((p) => p.role === 'coach').length} entraîneurs`} title="Le groupe" />
+
+      <div className="segmented" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        {TABS.map(([k, l]) => <button key={k} className={`segmented__btn ${tab === k ? 'is-yes' : ''}`} style={{ fontSize: 13 }} onClick={() => setParams(k === 'effectif' ? {} : { onglet: k }, { replace: true })}>{l}</button>)}
+      </div>
+
+      {tab === 'caisse' && <Treasury me={profile} profiles={profiles} />}
+      {tab === 'taches' && <Duties me={profile} profiles={profiles} />}
+      {tab === 'sondages' && <Polls me={profile} profiles={profiles} />}
+      {tab === 'effectif' && <>
 
       {staffList.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(3, staffList.length)}, minmax(0,1fr))`, gap: 8 }}>
@@ -67,6 +85,7 @@ export default function Group() {
         {players.length === 0 && <p className="muted small" style={{ padding: '12px 0' }}>Personne dans cette ligne pour l'instant.</p>}
       </div>
       {staff && nTrainings > 0 && <p className="small muted">Taux de présence calculé sur les {nTrainings} derniers entraînements (réponses « présent »).</p>}
+      </>}
     </>
   )
 }

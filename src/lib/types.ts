@@ -42,6 +42,8 @@ export interface TeamEvent {
   matchday: string | null
   notes: string | null
   response_deadline: string | null
+  status?: 'scheduled' | 'postponed' | 'cancelled'
+  status_note?: string | null
 }
 
 export interface AvailabilityRow {
@@ -113,3 +115,51 @@ export const roleLabel = (p: Profile) => (p.is_admin ? `${ROLE_LABELS[p.role]} �
 
 /** Seuil d'avertissements à surveiller (à ajuster selon le règlement du District). */
 export const YELLOW_ALERT = 2
+
+// ======================= V2 =======================
+export type EventStatus = 'scheduled' | 'postponed' | 'cancelled'
+
+export interface Carpool {
+  id: string
+  event_id: string
+  driver_id: string
+  seats: number
+  meeting_point: string | null
+  meeting_time: string | null
+}
+export interface CarpoolPassenger { carpool_id: string; profile_id: string }
+
+export interface TimelineItem { time: string; label: string; sub?: string }
+export interface ChecklistItem { label: string; done: boolean }
+export interface MatchdayPlan { event_id: string; timeline: TimelineItem[]; checklist: ChecklistItem[] }
+
+export type LivePhase = 'pre' | 'first_half' | 'half_time' | 'second_half' | 'finished'
+export interface LiveMatch { event_id: string; phase: LivePhase; goals_for: number; goals_against: number; started_at: string | null; updated_at: string }
+export type LiveKind = 'goal_for' | 'goal_against' | 'yellow' | 'red' | 'sub' | 'note'
+export interface LiveEvent { id: string; event_id: string; minute: number | null; kind: LiveKind; profile_id: string | null; text: string | null; created_at: string }
+
+export interface Fine { id: string; profile_id: string; kind: 'fine' | 'dues' | 'other'; label: string; amount: number; paid: boolean; paid_at: string | null; created_at: string }
+export interface FinePreset { id: string; label: string; amount: number }
+
+export interface Duty { id: string; label: string; profile_id: string; week_start: string; done: boolean }
+
+export interface Poll { id: string; question: string; options: string[]; multiple: boolean; anonymous: boolean; closes_at: string | null; created_by: string | null; created_at: string }
+export interface PollVote { poll_id: string; profile_id: string; option_idx: number }
+
+export interface LineupSpot { profile_id: string; x: number; y: number }
+export interface Lineup { event_id: string; formation: string; positions: LineupSpot[]; collective: string[]; individual: Record<string, string[]>; published: boolean }
+
+export type SetPieceKind = 'corner_off' | 'corner_def' | 'free_kick' | 'penalty' | 'throw_in' | 'kick_off'
+export interface SetPiece { id: string; kind: SetPieceKind; name: string; taker: string | null; description: string; sort: number }
+export const SET_PIECE_LABELS: Record<SetPieceKind, string> = {
+  corner_off: 'Corner offensif',
+  corner_def: 'Corner défensif',
+  free_kick: 'Coup franc',
+  penalty: 'Penalty',
+  throw_in: 'Touche',
+  kick_off: "Coup d'envoi",
+}
+
+export interface Scouting { opponent: string; system: string | null; strengths: string[]; weaknesses: string[]; key_players: string | null; notes: string | null; updated_at: string }
+
+export const DUTY_LABELS = ['Lavage des maillots', 'Sac de ballons', 'Chasubles et plots', "Collation d'après-match", 'Gourdes']

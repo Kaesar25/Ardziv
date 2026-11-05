@@ -61,7 +61,7 @@ export default function Agenda() {
                     <span className="eyebrow" style={{ color: isMatch ? 'var(--gold)' : undefined, letterSpacing: '0.08em' }}>{isMatch ? `Match${e.matchday ? ` · ${e.matchday}` : ''}` : e.type === 'training' ? 'Entraînement' : 'Événement'}</span>
                     <span className="small muted" style={{ fontWeight: 600 }}>{fmtTime(e.starts_at)}</span>
                   </div>
-                  <span style={{ fontWeight: 600 }}>{e.title}</span>
+                  <span style={{ fontWeight: 600, textDecoration: e.status === 'cancelled' ? 'line-through' : 'none' }}>{e.title}{e.status && e.status !== 'scheduled' ? <span className="red" style={{ fontSize: 12, fontWeight: 700, marginLeft: 6 }}>{e.status === 'postponed' ? 'REPORTÉ' : 'ANNULÉ'}</span> : null}</span>
                   {e.location && <span className="small muted">{e.location}{e.is_home === false ? ' · extérieur' : ''}</span>}
                   <span className="small" style={{ marginTop: 3, fontWeight: 600, color: mine || !player ? 'var(--muted)' : 'var(--gold)' }}>
                     {[

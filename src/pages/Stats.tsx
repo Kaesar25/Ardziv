@@ -7,6 +7,7 @@ import { useAuth } from '../lib/auth'
 import { isCaptainOrStaff, isPlayer, isStaff, YELLOW_ALERT, type MatchStat, type Profile, type Standing } from '../lib/types'
 import { PageTitle, Skeleton } from '../components/ui'
 import StandingsTable from '../components/StandingsTable'
+import { fetchMotmSeason } from '../lib/data2'
 
 export default function Stats() {
   const { profile } = useAuth()
@@ -14,11 +15,11 @@ export default function Stats() {
   const [editStandings, setEditStandings] = useState(false)
 
   const q = useAsync(async () => {
-    const [events, results, stats, profiles, standings] = await Promise.all([fetchEvents(), fetchResults(), fetchStats(), fetchProfiles(), fetchStandings()])
-    return { events, results, stats, profiles, standings }
+    const [events, results, stats, profiles, standings, motm] = await Promise.all([fetchEvents(), fetchResults(), fetchStats(), fetchProfiles(), fetchStandings(), fetchMotmSeason()])
+    return { events, results, stats, profiles, standings, motm }
   }, [])
   if (q.loading || !q.data || !profile) return <><Skeleton h={60} /><Skeleton h={300} /></>
-  const { events, results, stats, profiles, standings } = q.data
+  const { events, results, stats, profiles, standings, motm } = q.data
 
   const matches = events.filter((e) => e.type === 'match')
   const played = results.map((r) => ({ r, e: matches.find((m) => m.id === r.event_id)! })).filter((x) => x.e).sort((a, b) => b.e.starts_at.localeCompare(a.e.starts_at))
@@ -114,6 +115,7 @@ export default function Stats() {
 
       <Ranking title="Buteurs" rows={scorers} profiles={profiles} me={profile.id} empty="Les buteurs apparaîtront dès qu'une feuille de match sera remplie (ouvre un match passé)." />
       <Ranking title="Passeurs" rows={passers} profiles={profiles} me={profile.id} empty="Les passes décisives apparaîtront avec les feuilles de match." />
+      <Ranking title="Hommes du match" rows={motm.map((m) => ({ pid: m.profile_id, v: m.wins }))} profiles={profiles} me={profile.id} empty="Le classement apparaîtra après le premier vote clos (48 h après chaque match)." />
     </>
   )
 }

@@ -2,10 +2,16 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { useAsync } from '../lib/useAsync'
-import { fetchAvailabilities, fetchEvent, fetchProfiles, fetchResults, fetchSquad, publishSquad, saveResult, saveSquad, setAvailability } from '../lib/data'
+import { fetchAvailabilities, fetchEvent, fetchEvents, fetchProfiles, fetchResults, fetchSquad, publishSquad, saveResult, saveSquad, setAvailability } from '../lib/data'
 import { fmtDate, fmtLong, fmtTime, cap } from '../lib/format'
 import { isCaptainOrStaff, isPlayer, isStaff, LINE_LABELS, type Availability, type Profile, type SquadLine } from '../lib/types'
 import MatchSheet from '../components/MatchSheet'
+import MatchDay from '../components/MatchDay'
+import Tactics from '../components/Tactics'
+import Carpool from '../components/Carpool'
+import MotmVote from '../components/MotmVote'
+import { setEventStatus } from '../lib/data2'
+import { useSearchParams } from 'react-router-dom'
 import { Avatar, Chip, Segmented, Skeleton, Status } from '../components/ui'
 import { IconBack } from '../components/Icons'
 import { MatchHeader, ResponseBar, dispoHint } from './Home'
@@ -23,14 +29,18 @@ export default function EventDetail() {
   const [bench, setBench] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
   const [reminded, setReminded] = useState<string | null>(null)
+  const [params, setParams] = useSearchParams()
+  const [statusForm, setStatusForm] = useState(false)
+  const [statusNote, setStatusNote] = useState('')
 
   const q = useAsync(async () => {
     const [event, profiles, avail, { squad, players }, results] = await Promise.all([fetchEvent(id), fetchProfiles(), fetchAvailabilities([id]), fetchSquad(id), fetchResults()])
-    return { event, profiles, avail, squad, squadPlayers: players, result: results.find((r) => r.event_id === id) ?? null }
+    const allMatches = event?.opponent ? await fetchEvents() : []
+    return { event, profiles, avail, squad, squadPlayers: players, result: results.find((r) => r.event_id === id) ?? null, results, allMatches }
   }, [id])
 
   if (q.loading || !q.data || !profile) return <><Skeleton h={40} /><Skeleton h={240} /></>
-  const { event, profiles, avail, squad, squadPlayers, result } = q.data
+  const { event, profiles, avail, squad, squadPlayers, result, results, allMatches } = q.data
   if (!event) return <p className="muted">Événement introuvable.</p>
 
   const isMatch = event.type === 'match'
@@ -79,6 +89,20 @@ export default function EventDetail() {
   }
 
   const who = event.opponent ?? event.title
+  type Tab = 'groupe' | 'jourj' | 'tactique' | 'covoit' | 'vote'
+  const tabs: [Tab, string][] = !isMatch ? [] : past
+    ? [['groupe', 'Résultat'], ['vote', 'Homme du match'], ['tactique', 'Tactique']]
+    : [['groupe', 'Groupe'], ['jourj', 'Jour J'], ['tactique', 'Tactique'], ['covoit', 'Covoiturage']]
+  const tab = (tabs.some(([k]) => k === params.get('onglet')) ? params.get('onglet') : 'groupe') as Tab
+  const setTab = (k: Tab) => setParams(k === 'groupe' ? {} : { onglet: k }, { replace: true })
+  const previous = (() => {
+    if (!event.opponent) return null
+    const prev = allMatches.filter((m) => m.opponent === event.opponent && m.id !== event.id && m.starts_at < event.starts_at).pop()
+    const r = prev ? results.find((x) => x.event_id === prev.id) : null
+    return prev && r ? { event: prev, result: r } : null
+  })()
+  const squadIds = squadPlayers.map((s) => s.profile_id)
+  const status = event.status ?? 'scheduled'
 
   return (
     <>
@@ -90,6 +114,26 @@ export default function EventDetail() {
         {isMatch && <p className="text-2" style={{ fontSize: 14 }}>{published ? `Groupe publié · ${squadPlayers.length} joueurs` : staff ? 'Brouillon · non visible par les joueurs' : 'Le groupe sera publié par le staff.'}</p>}
         {event.notes && <p className="text-2" style={{ fontSize: 14 }}>{event.notes}</p>}
       </div>
+
+      {status !== 'scheduled' && (
+        <section className="card" style={{ background: '#24140F', borderColor: '#5C2A22', gap: 4 }}>
+          <span className="eyebrow" style={{ color: '#FF9C8A' }}>{status === 'postponed' ? 'Match reporté' : 'Annulé'}</span>
+          <span className="small" style={{ color: '#E0B9B1' }}>{event.status_note || (status === 'postponed' ? 'Nouvelle date à venir.' : "L'événement n'aura pas lieu.")}</span>
+        </section>
+      )}
+
+      {tabs.length > 0 && (
+        <div className="scroll-x" role="tablist">
+          {tabs.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} className={`chip chip--ghost ${tab === k ? 'is-active' : ''}`} style={{ minHeight: 38, padding: '0 14px', fontSize: 13 }} onClick={() => setTab(k)}>{l}</button>)}
+        </div>
+      )}
+
+      {tab === 'jourj' && <MatchDay event={event} me={profile} players={players} squadIds={squadIds} />}
+      {tab === 'tactique' && <Tactics event={event} me={profile} players={players} previous={previous} />}
+      {tab === 'covoit' && <Carpool eventId={event.id} me={profile} profiles={profiles} />}
+      {tab === 'vote' && <MotmVote event={event} me={profile} players={players} />}
+
+      {tab === 'groupe' && <>
 
       {isMatch && <section className="card"><MatchHeader home={!!event.is_home} opponent={who} time={fmtTime(event.starts_at)} date={fmtDate(event.starts_at)} />
         {result && <div className="center" style={{ fontFamily: 'var(--display)', fontWeight: 800, fontSize: 44, lineHeight: 1 }}>{event.is_home ? `${result.goals_for} – ${result.goals_against}` : `${result.goals_against} – ${result.goals_for}`}</div>}
@@ -156,6 +200,25 @@ export default function EventDetail() {
         })}
         {players.some((p) => !p.line) && <p className="small muted">Les joueurs sans poste apparaissent dans « Milieux ». Ils peuvent le régler dans « Plus → Mon profil ».</p>}
       </section>
+
+      {staff && !past && (
+        statusForm ? (
+          <section className="card" style={{ gap: 10 }}>
+            <span className="eyebrow">Signaler un changement</span>
+            <input className="input" placeholder="Précision (ex. terrain impraticable, nouvelle date à venir)" value={statusNote} onChange={(e) => setStatusNote(e.target.value)} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <button className="btn btn--sm btn--secondary" disabled={busy} onClick={async () => { setBusy(true); await setEventStatus(id, 'postponed', statusNote || null); void notify('event_changed', id); setStatusForm(false); setBusy(false); await q.reload() }}>Reporté</button>
+              <button className="btn btn--sm btn--secondary" style={{ color: 'var(--red)' }} disabled={busy} onClick={async () => { setBusy(true); await setEventStatus(id, 'cancelled', statusNote || null); void notify('event_changed', id); setStatusForm(false); setBusy(false); await q.reload() }}>Annulé</button>
+            </div>
+            <button className="link center" style={{ justifyContent: 'center' }} onClick={() => setStatusForm(false)}>Fermer</button>
+          </section>
+        ) : status !== 'scheduled' ? (
+          <button className="btn btn--sm btn--secondary" disabled={busy} onClick={async () => { setBusy(true); await setEventStatus(id, 'scheduled', null); setBusy(false); await q.reload() }}>Rétablir l'événement</button>
+        ) : (
+          <button className="link center" style={{ justifyContent: 'center', color: 'var(--muted)' }} onClick={() => setStatusForm(true)}>Signaler un report ou une annulation</button>
+        )
+      )}
+      </>}
     </>
   )
 }

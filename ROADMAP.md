@@ -18,28 +18,28 @@ Statut : ✅ livré · 🔧 en cours · ⏳ prévu.
 | Classement complet de la poule (mis à jour par le staff) et stats individuelles | ✅ |
 | Message du capitaine / staff sur l'accueil | ✅ |
 | Gestion des droits : joueur, capitaine, entraîneur, staff + administrateur unique | ✅ |
-| Covoiturage pour les déplacements | ⏳ V1.1 |
+| Covoiturage pour les déplacements | ✅ |
 
-## V2 — Jour J, tactique, vie du groupe
+## V2 — Jour J, tactique, vie du groupe ✅
 | Fonctionnalité | Statut |
 |---|---|
-| Mode Jour J : compte à rebours, rendez-vous, itinéraire, compo, plan de match | ⏳ |
-| Checklist d'avant-match (staff) et « ton sac » (joueur) | ⏳ |
-| Déroulé de l'échauffement minuté | ⏳ |
-| Score en direct saisi par le staff, suivi par les absents et les familles | ⏳ |
-| Tableau tactique interactif (composition, déplacer les joueurs) | ⏳ |
-| Bibliothèque de coups de pied arrêtés avec rôles | ⏳ |
-| Fiche adversaire : système, joueurs dangereux, match aller | ⏳ |
-| Plan de match partagé la veille aux convoqués | ⏳ |
-| Préparation de l'adversaire (forme, buts, aller) | ⏳ |
+| Mode Jour J : compte à rebours, rendez-vous, itinéraire, compo, plan de match | ✅ |
+| Checklist d'avant-match (staff) et « ton sac » (joueur) | ✅ |
+| Déroulé de l'échauffement minuté | ✅ |
+| Score en direct saisi par le staff, suivi par les absents et les familles | ✅ |
+| Tableau tactique interactif (composition, déplacer les joueurs) | ✅ |
+| Bibliothèque de coups de pied arrêtés avec rôles | ✅ |
+| Fiche adversaire : système, joueurs dangereux, match aller | ✅ |
+| Plan de match partagé la veille aux convoqués | ✅ |
+| Préparation de l'adversaire (forme, buts, aller) | ✅ |
 | Suivi des cartons avec alerte avant suspension | ✅ (en avance, livré avec la V1) |
-| Suspensions officielles : dates de purge | ⏳ |
-| Vote de l'homme du match, classement sur la saison | ⏳ |
-| Caisse : cotisations, amendes, tableau public | ⏳ |
-| Tâches tournantes (maillots, chasubles, ballons, collation) | ⏳ |
-| Sondages rapides | ⏳ |
-| Alerte terrain impraticable / match reporté | ⏳ |
-| Fonctionnement hors ligne (saisie au bord du terrain) | ⏳ |
+| Suspensions officielles : dates de purge | 🔧 alerte cartons livrée ; dates de purge à saisir selon le District |
+| Vote de l'homme du match, classement sur la saison | ✅ |
+| Caisse : cotisations, amendes, tableau public | ✅ |
+| Tâches tournantes (maillots, chasubles, ballons, collation) | ✅ |
+| Sondages rapides | ✅ |
+| Alerte terrain impraticable / match reporté | ✅ |
+| Fonctionnement hors ligne (saisie au bord du terrain) | 🔧 l'app s'ouvre hors ligne ; la saisie sans réseau reste à faire |
 
 ## V3 — Management, entraînement, identité, communication
 | Fonctionnalité | Statut |

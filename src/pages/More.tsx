@@ -8,12 +8,12 @@ import PushCard from '../components/PushCard'
 import { notify } from '../lib/push'
 
 const ROADMAP = [
-  { title: 'Tactique et plan de match', sub: 'Compo, coups de pied arrêtés, adversaire', tag: 'V2' },
-  { title: 'Mode Jour J', sub: 'Déroulé, checklist, score en direct', tag: 'V2' },
-  { title: 'Caisse et sondages', sub: 'Amendes, cotisations, votes', tag: 'V2' },
-  { title: 'Homme du match', sub: 'Vote après chaque rencontre', tag: 'V2' },
-  { title: 'Espace staff', sub: 'Entretiens, objectifs, ressentis', tag: 'V3' },
-  { title: 'Histoire du club', sub: 'Depuis 1924', tag: 'V3' },
+  { title: 'Lien avec l’équipe 1', sub: 'Montées, descentes, accès du coach de la R1', tag: 'V3' },
+  { title: 'Espace staff', sub: 'Entretiens, objectifs, ressentis après l’entraînement', tag: 'V3' },
+  { title: 'Entraînement', sub: 'Exercices, planification, tests physiques', tag: 'V3' },
+  { title: 'Vidéo', sub: 'Clips annotés, tes actions du match', tag: 'V3' },
+  { title: 'Histoire du club', sub: 'Depuis 1924, quiz, Ardziv Wrapped', tag: 'V3' },
+  { title: 'Communication', sub: 'Visuels automatiques, page publique, sponsors', tag: 'V3' },
 ]
 
 export default function More() {
@@ -85,11 +85,13 @@ export default function More() {
         </div>
       </section>
 
+      <Link to="/tactique" className="btn btn--secondary btn--sm">Tactique : coups de pied arrêtés et adversaires</Link>
+      <Link to="/groupe?onglet=caisse" className="btn btn--secondary btn--sm">Caisse de l'équipe</Link>
       {isStaff(profile) && (
         <Link to="/membres" className="btn btn--secondary btn--sm">Gérer les membres et les rôles</Link>
       )}
       <button className="btn btn--secondary btn--sm" onClick={signOut}>Se déconnecter</button>
-      <p className="small muted center">Ardziv 2 · V1 · fait par et pour l'équipe</p>
+      <p className="small muted center">Ardziv 2 · V2 · fait par et pour l'équipe</p>
     </>
   )
 }
