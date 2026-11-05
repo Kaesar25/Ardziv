@@ -4,3 +4,5 @@ dev-dist
 .env.local
 .env
 .DS_Store
+# Clés et secrets : jamais sur GitHub
+secrets/

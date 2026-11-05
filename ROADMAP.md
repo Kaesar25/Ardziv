@@ -10,8 +10,8 @@ Statut : ✅ livré · 🔧 en cours · ⏳ prévu.
 | Calendrier des matchs et entraînements (lieu, heure, rendez-vous) | ✅ |
 | Disponibilités en un clic (présent / incertain / absent) | ✅ |
 | Convocations publiées par le coach, brouillon invisible des joueurs | ✅ |
-| Notifications push (convocation, rappel, résultat) | 🔧 juste après le premier test |
-| Relance automatique de ceux qui n'ont pas répondu | 🔧 avec les notifications |
+| Notifications push (convocation, nouvel événement, résultat, message) | ✅ |
+| Relance des sans-réponse : bouton coach + rappel automatique chaque matin (48 h avant) | ✅ |
 | Fiches joueurs : poste, ligne, numéro | ✅ |
 | Taux de présence aux entraînements (visible staff) | ✅ |
 | Feuille de match rapide : score ; buteurs, passeurs, cartons | ✅ score · 🔧 détails |

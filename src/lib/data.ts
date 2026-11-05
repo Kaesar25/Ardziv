@@ -107,9 +107,10 @@ export async function postAnnouncement(authorId: string, body: string): Promise<
   if (error) throw error
 }
 
-export async function createEvent(e: Partial<TeamEvent> & { type: TeamEvent['type']; title: string; starts_at: string }, byId: string): Promise<void> {
-  const { error } = await supabase.from('events').insert({ ...e, created_by: byId })
+export async function createEvent(e: Partial<TeamEvent> & { type: TeamEvent['type']; title: string; starts_at: string }, byId: string): Promise<string> {
+  const { data, error } = await supabase.from('events').insert({ ...e, created_by: byId }).select('id').single()
   if (error) throw error
+  return (data as { id: string }).id
 }
 
 export async function updateProfile(id: string, patch: Partial<Profile>): Promise<void> {

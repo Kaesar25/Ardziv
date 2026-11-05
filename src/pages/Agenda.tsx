@@ -8,6 +8,7 @@ import { isStaff, type TeamEvent } from '../lib/types'
 import { Chip, PageTitle, Skeleton } from '../components/ui'
 import { IconPlus } from '../components/Icons'
 import { dispoLabel } from './Home'
+import { notify } from '../lib/push'
 
 export default function Agenda() {
   const { profile } = useAuth()
@@ -91,7 +92,8 @@ function NewEventForm({ onDone, byId }: { onDone: () => void; byId: string }) {
     setError(null)
     try {
       const starts = new Date(`${date}T${time}:00`).toISOString()
-      await createEvent({ type, title: type === 'match' && opponent ? (home ? `Ardziv 2 – ${opponent}` : `${opponent} – Ardziv 2`) : title, starts_at: starts, location, opponent: type === 'match' ? opponent : null, is_home: type === 'match' ? home : null, competition: type === 'match' ? 'Départemental 2' : null }, byId)
+      const id = await createEvent({ type, title: type === 'match' && opponent ? (home ? `Ardziv 2 – ${opponent}` : `${opponent} – Ardziv 2`) : title, starts_at: starts, location, opponent: type === 'match' ? opponent : null, is_home: type === 'match' ? home : null, competition: type === 'match' ? 'Départemental 2' : null }, byId)
+      void notify('event_created', id)
       onDone()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erreur')
@@ -126,7 +128,7 @@ function NewEventForm({ onDone, byId }: { onDone: () => void; byId: string }) {
       <input className="input" placeholder="Lieu" value={location} onChange={(e) => setLocation(e.target.value)} />
       <button className="btn btn--sm" disabled={busy || !date || (type === 'match' ? !opponent : !title)} onClick={submit}>{busy ? 'Enregistrement…' : 'Ajouter à l\'agenda'}</button>
       {error && <p className="error">{error}</p>}
-      <Chip>Les joueurs recevront la demande de disponibilité.</Chip>
+      <Chip>Les joueurs reçoivent une notification pour donner leur dispo.</Chip>
     </div>
   )
 }

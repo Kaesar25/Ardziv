@@ -6,6 +6,7 @@ import { countdownLabel, fmtDate, fmtDay, fmtDow, fmtLong, fmtTime, timeAgo, cap
 import { isStaff, type Availability, type AvailabilityRow } from '../lib/types'
 import { Avatar, Chip, Segmented, Skeleton } from '../components/ui'
 import { IconArrow } from '../components/Icons'
+import PushCard from '../components/PushCard'
 
 export default function Home() {
   const { profile } = useAuth()
@@ -87,6 +88,8 @@ export default function Home() {
           </Link>
         </section>
       )}
+
+      <PushCard />
 
       <section className="stack stack--md">
         <div className="row row--between" style={{ alignItems: 'baseline' }}>

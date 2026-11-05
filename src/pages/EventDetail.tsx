@@ -8,6 +8,7 @@ import { isCaptainOrStaff, isStaff, LINE_LABELS, type Availability, type Profile
 import { Avatar, Chip, Segmented, Skeleton, Status } from '../components/ui'
 import { IconBack } from '../components/Icons'
 import { MatchHeader, ResponseBar, dispoHint } from './Home'
+import { notify } from '../lib/push'
 
 const LINES: SquadLine[] = ['GB', 'DEF', 'MIL', 'ATT']
 
@@ -20,6 +21,7 @@ export default function EventDetail() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bench, setBench] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
+  const [reminded, setReminded] = useState<string | null>(null)
 
   const q = useAsync(async () => {
     const [event, profiles, avail, { squad, players }, results] = await Promise.all([fetchEvent(id), fetchProfiles(), fetchAvailabilities([id]), fetchSquad(id), fetchResults()])
@@ -66,7 +68,10 @@ export default function EventDetail() {
     setBusy(true)
     try {
       await saveSquad(id, [...selected], [...bench])
-      if (andPublish) await publishSquad(id, profile!.id)
+      if (andPublish) {
+        await publishSquad(id, profile!.id)
+        void notify('squad_published', id)
+      }
       setEditing(false)
       await q.reload()
     } finally { setBusy(false) }
@@ -104,6 +109,19 @@ export default function EventDetail() {
       {!past && staff && (
         <section className="card" style={{ gap: 14 }}>
           <ResponseBar c={c} />
+          {c.none > 0 && (
+            <button
+              className="btn btn--sm btn--secondary"
+              disabled={!!reminded}
+              onClick={async () => {
+                setReminded('…')
+                const r = await notify('remind', id)
+                setReminded(r ? `Relance envoyée à ${r.sent} appareil${r.sent > 1 ? 's' : ''}` : 'Relance impossible pour le moment')
+              }}
+            >
+              {reminded ?? `Relancer ${c.none === 1 ? 'le joueur' : `les ${c.none} joueurs`} sans réponse`}
+            </button>
+          )}
           {isMatch && !editing && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <button className="btn btn--sm btn--secondary" onClick={startEditing}>{squadPlayers.length ? 'Modifier le groupe' : 'Composer le groupe'}</button>
@@ -171,7 +189,7 @@ function ResultForm({ eventId, initial, onSaved }: { eventId: string; initial: {
         <span className="muted">–</span>
         <input className="input" type="number" min={0} value={ga} onChange={(e) => setGa(Number(e.target.value))} />
       </div>
-      <button className="btn btn--sm" disabled={busy} onClick={async () => { setBusy(true); await saveResult(eventId, gf, ga); setBusy(false); onSaved() }}>{initial ? 'Mettre à jour le score' : 'Enregistrer le score'}</button>
+      <button className="btn btn--sm" disabled={busy} onClick={async () => { setBusy(true); await saveResult(eventId, gf, ga); if (!initial) void notify('result', eventId); setBusy(false); onSaved() }}>{initial ? 'Mettre à jour le score' : 'Enregistrer le score'}</button>
     </div>
   )
 }

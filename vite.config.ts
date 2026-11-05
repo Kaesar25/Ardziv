@@ -6,8 +6,15 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'],
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+      },
       manifest: {
         name: 'EUGA Ardziv 2',
         short_name: 'Ardziv 2',
@@ -21,10 +28,6 @@ export default defineConfig({
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
-      },
-      workbox: {
-        navigateFallback: '/index.html',
-        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
       },
     }),
   ],

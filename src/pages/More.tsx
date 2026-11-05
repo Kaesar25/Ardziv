@@ -4,6 +4,8 @@ import { useAuth } from '../lib/auth'
 import { postAnnouncement, updateProfile } from '../lib/data'
 import { isCaptainOrStaff, isStaff, LINE_LABELS, ROLE_LABELS, type SquadLine } from '../lib/types'
 import { Avatar, Chip, PageTitle } from '../components/ui'
+import PushCard from '../components/PushCard'
+import { notify } from '../lib/push'
 
 const ROADMAP = [
   { title: 'Tactique et plan de match', sub: 'Compo, coups de pied arrêtés, adversaire', tag: 'V2' },
@@ -59,11 +61,15 @@ export default function More() {
         <button className="btn btn--sm" onClick={save}>{saved ? 'Enregistré' : 'Enregistrer'}</button>
       </section>
 
+      <section className="card" style={{ gap: 12 }}>
+        <PushCard compact />
+      </section>
+
       {isCaptainOrStaff(profile) && (
         <section className="card" style={{ gap: 10 }}>
           <span className="eyebrow">Message au groupe</span>
           <textarea className="input" rows={3} style={{ padding: 12, minHeight: 90, resize: 'vertical' }} placeholder="Affiché sur l'accueil de tout le monde" value={msg} onChange={(e) => setMsg(e.target.value)} />
-          <button className="btn btn--sm" disabled={!msg.trim()} onClick={async () => { await postAnnouncement(profile.id, msg.trim()); setMsg(''); setSent(true); setTimeout(() => setSent(false), 2000) }}>{sent ? 'Envoyé' : 'Publier'}</button>
+          <button className="btn btn--sm" disabled={!msg.trim()} onClick={async () => { await postAnnouncement(profile.id, msg.trim()); void notify('announcement'); setMsg(''); setSent(true); setTimeout(() => setSent(false), 2000) }}>{sent ? 'Envoyé' : 'Publier'}</button>
         </section>
       )}
 
