@@ -14,10 +14,10 @@ Statut : ✅ livré · 🔧 en cours · ⏳ prévu.
 | Relance des sans-réponse : bouton coach + rappel automatique chaque matin (48 h avant) | ✅ |
 | Fiches joueurs : poste, ligne, numéro | ✅ |
 | Taux de présence aux entraînements (visible staff) | ✅ |
-| Feuille de match rapide : score ; buteurs, passeurs, cartons | ✅ score · 🔧 détails |
-| Classement et statistiques individuelles | 🔧 classement saisi par le staff |
+| Feuille de match : score, qui a joué, buteurs, passeurs, cartons | ✅ |
+| Classement complet de la poule (mis à jour par le staff) et stats individuelles | ✅ |
 | Message du capitaine / staff sur l'accueil | ✅ |
-| Gestion des droits : joueur, capitaine, entraîneur, staff | ✅ |
+| Gestion des droits : joueur, capitaine, entraîneur, staff + administrateur unique | ✅ |
 | Covoiturage pour les déplacements | ⏳ V1.1 |
 
 ## V2 — Jour J, tactique, vie du groupe
@@ -32,7 +32,7 @@ Statut : ✅ livré · 🔧 en cours · ⏳ prévu.
 | Fiche adversaire : système, joueurs dangereux, match aller | ⏳ |
 | Plan de match partagé la veille aux convoqués | ⏳ |
 | Préparation de l'adversaire (forme, buts, aller) | ⏳ |
-| Suivi des cartons avec alerte avant suspension | ⏳ |
+| Suivi des cartons avec alerte avant suspension | ✅ (en avance, livré avec la V1) |
 | Suspensions officielles : dates de purge | ⏳ |
 | Vote de l'homme du match, classement sur la saison | ⏳ |
 | Caisse : cotisations, amendes, tableau public | ⏳ |

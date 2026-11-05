@@ -1,34 +1,37 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { useAsync } from '../lib/useAsync'
-import { fetchAnnouncements, fetchAvailabilities, fetchEvents, fetchNextMatch, fetchProfiles, fetchResults, setAvailability } from '../lib/data'
+import { fetchAnnouncements, fetchAvailabilities, fetchEvents, fetchNextMatch, fetchProfiles, fetchResults, fetchStandings, setAvailability } from '../lib/data'
 import { countdownLabel, fmtDate, fmtDay, fmtDow, fmtLong, fmtTime, timeAgo, cap } from '../lib/format'
-import { isStaff, type Availability, type AvailabilityRow } from '../lib/types'
+import { isPlayer, isStaff, type Availability, type AvailabilityRow } from '../lib/types'
 import { Avatar, Chip, Segmented, Skeleton } from '../components/ui'
 import { IconArrow } from '../components/Icons'
 import PushCard from '../components/PushCard'
+import StandingsTable from '../components/StandingsTable'
 
 export default function Home() {
   const { profile } = useAuth()
   const staff = isStaff(profile)
+  const player = isPlayer(profile)
 
   const q = useAsync(async () => {
     const now = new Date()
     const in7 = new Date(now.getTime() + 7 * 86_400_000)
-    const [next, week, profiles, results, anns] = await Promise.all([
+    const [next, week, profiles, results, anns, standings] = await Promise.all([
       fetchNextMatch(),
       fetchEvents(new Date(now.getTime() - 3 * 3600_000).toISOString(), in7.toISOString()),
       fetchProfiles(),
       fetchResults(),
       fetchAnnouncements(1),
+      fetchStandings(),
     ])
     const ids = [...new Set([...(next ? [next.id] : []), ...week.map((e) => e.id)])]
     const avail = await fetchAvailabilities(ids)
-    return { next, week, profiles, results, avail, ann: anns[0] ?? null }
+    return { next, week, profiles, results, avail, ann: anns[0] ?? null, standings }
   }, [])
 
   if (q.loading || !q.data || !profile) return <><Skeleton h={80} /><Skeleton h={300} /><Skeleton h={160} /></>
-  const { next, week, profiles, results, avail, ann } = q.data
+  const { next, week, profiles, results, avail, ann, standings } = q.data
 
   const players = profiles.filter((p) => p.role === 'player' || p.role === 'captain')
   const myStatus = (eventId: string): Availability | null => avail.find((a) => a.event_id === eventId && a.profile_id === profile.id)?.status ?? null
@@ -50,7 +53,7 @@ export default function Home() {
   const played = results.length
   const wins = results.filter((r) => r.goals_for > r.goals_against).length
 
-  const sub = staff && next
+  const sub = staff && !player && next
     ? `${counts(next.id).none} joueur(s) sans réponse pour ${fmtDate(next.starts_at)}.`
     : next ? `${next.is_home ? 'Réception' : 'Déplacement'} ${next.is_home ? 'de' : 'chez'} ${next.opponent ?? ''} ${fmtDate(next.starts_at)} à ${fmtTime(next.starts_at)}.`
     : 'Pas de match programmé.'
@@ -75,16 +78,15 @@ export default function Home() {
             {next.location && <Chip>{next.location}</Chip>}
             {next.meeting_at && <Chip>RDV {fmtTime(next.meeting_at)}</Chip>}
           </div>
-          {!staff ? (
+          {player && (
             <div className="stack" style={{ gap: 10 }}>
               <Segmented value={myStatus(next.id)} onChange={(s) => answer(next.id, s)} />
               <span className="small muted center">{dispoHint(myStatus(next.id))}</span>
             </div>
-          ) : (
-            <ResponseBar c={counts(next.id)} />
           )}
+          {staff && <ResponseBar c={counts(next.id)} />}
           <Link to={`/evenement/${next.id}`} className="btn">
-            {staff ? 'Préparer le groupe' : 'Voir la convocation'} <IconArrow stroke="var(--ink)" />
+            {staff ? 'Voir et préparer le groupe' : 'Voir la convocation'} <IconArrow stroke="var(--ink)" />
           </Link>
         </section>
       )}
@@ -107,7 +109,7 @@ export default function Home() {
                 <span style={{ fontWeight: 600 }}>{e.title}</span>
                 <span className="small muted">{fmtTime(e.starts_at)}{e.location ? ` · ${e.location}` : ''}</span>
               </div>
-              {staff ? <Chip>{c.yes} présents</Chip> : s ? <Chip tone={s === 'no' ? 'red' : 'gold'}>{dispoLabel(s)}</Chip> : <Chip><span className="gold">Répondre</span></Chip>}
+              {player ? (s ? <Chip tone={s === 'no' ? 'red' : 'gold'}>{dispoLabel(s)}</Chip> : <Chip><span className="gold">Répondre</span></Chip>) : <Chip>{c.yes} présents</Chip>}
             </Link>
           )
         })}
@@ -115,14 +117,15 @@ export default function Home() {
 
       <section className="card" style={{ padding: '18px 20px' }}>
         <div className="row row--between">
-          <h2 className="h2">Saison</h2>
-          <Link to="/stats" className="link">Résultats</Link>
+          <h2 className="h2">Classement</h2>
+          <Link to="/stats" className="link">Tout voir</Link>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 8 }}>
           <Kpi v={String(played)} l="joués" />
           <Kpi v={String(wins)} l="victoires" gold />
           <Kpi v={`${results.reduce((a, r) => a + r.goals_for, 0)}-${results.reduce((a, r) => a + r.goals_against, 0)}`} l="buts" />
         </div>
+        {standings.length > 0 && <StandingsTable rows={standings.slice(0, 5)} compact />}
       </section>
 
       {ann && (() => {

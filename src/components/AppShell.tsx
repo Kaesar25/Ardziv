@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { ROLE_LABELS } from '../lib/types'
+import { roleLabel } from '../lib/types'
 import { Avatar } from './ui'
 import { IconCalendar, IconChart, IconGrid, IconHome, IconUsers } from './Icons'
 
@@ -30,7 +30,7 @@ export default function AppShell() {
           <NavLink to="/plus" className="row" style={{ gap: 8, minHeight: 44 }} aria-label="Mon profil">
             <div className="stack" style={{ alignItems: 'flex-end', gap: 0, lineHeight: 1.15 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{profile.first_name}</span>
-              <span className="gold" style={{ fontSize: 11, fontWeight: 600 }}>{ROLE_LABELS[profile.role]}</span>
+              <span className="gold" style={{ fontSize: 11, fontWeight: 600 }}>{roleLabel(profile)}</span>
             </div>
             <Avatar p={profile} me lg />
           </NavLink>

@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Availability, AvailabilityRow, MatchResult, MatchStat, Profile, Squad, SquadPlayer, TeamEvent, Announcement } from './types'
+import type { Availability, AvailabilityRow, MatchResult, MatchStat, Profile, Squad, SquadPlayer, Standing, TeamEvent, Announcement } from './types'
 
 export async function fetchProfiles(): Promise<Profile[]> {
   const { data, error } = await supabase.from('profiles').select('*').order('number', { ascending: true, nullsFirst: false })
@@ -111,6 +111,45 @@ export async function createEvent(e: Partial<TeamEvent> & { type: TeamEvent['typ
   const { data, error } = await supabase.from('events').insert({ ...e, created_by: byId }).select('id').single()
   if (error) throw error
   return (data as { id: string }).id
+}
+
+export async function fetchStandings(): Promise<Standing[]> {
+  const { data, error } = await supabase.from('standings').select('*')
+  if (error) return []
+  return sortStandings(data as Standing[])
+}
+
+/** Tri officiel simplifié : points, puis différence de buts, puis buts marqués. */
+export function sortStandings(rows: Standing[]): Standing[] {
+  return [...rows].sort(
+    (a, b) =>
+      b.points - a.points ||
+      (b.goals_for - b.goals_against) - (a.goals_for - a.goals_against) ||
+      b.goals_for - a.goals_for ||
+      a.team.localeCompare(b.team),
+  )
+}
+
+export async function saveStandings(rows: Standing[]): Promise<void> {
+  const now = new Date().toISOString()
+  const { error } = await supabase.from('standings').upsert(rows.map((r) => ({ ...r, updated_at: now })))
+  if (error) throw error
+}
+
+export async function fetchMatchStats(eventId: string): Promise<MatchStat[]> {
+  const { data, error } = await supabase.from('match_stats').select('*').eq('event_id', eventId)
+  if (error) throw error
+  return data as MatchStat[]
+}
+
+/** Remplace la feuille de match d'un événement (on ne garde que les lignes non vides). */
+export async function saveMatchStats(eventId: string, rows: Omit<MatchStat, 'event_id'>[]): Promise<void> {
+  const { error: delErr } = await supabase.from('match_stats').delete().eq('event_id', eventId)
+  if (delErr) throw delErr
+  const keep = rows.filter((r) => r.played || r.goals || r.assists || r.yellow || r.red)
+  if (keep.length === 0) return
+  const { error } = await supabase.from('match_stats').insert(keep.map((r) => ({ ...r, event_id: eventId })))
+  if (error) throw error
 }
 
 export async function updateProfile(id: string, patch: Partial<Profile>): Promise<void> {

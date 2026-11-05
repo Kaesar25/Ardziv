@@ -4,7 +4,8 @@ import { useAuth } from '../lib/auth'
 import { useAsync } from '../lib/useAsync'
 import { fetchAvailabilities, fetchEvent, fetchProfiles, fetchResults, fetchSquad, publishSquad, saveResult, saveSquad, setAvailability } from '../lib/data'
 import { fmtDate, fmtLong, fmtTime, cap } from '../lib/format'
-import { isCaptainOrStaff, isStaff, LINE_LABELS, type Availability, type Profile, type SquadLine } from '../lib/types'
+import { isCaptainOrStaff, isPlayer, isStaff, LINE_LABELS, type Availability, type Profile, type SquadLine } from '../lib/types'
+import MatchSheet from '../components/MatchSheet'
 import { Avatar, Chip, Segmented, Skeleton, Status } from '../components/ui'
 import { IconBack } from '../components/Icons'
 import { MatchHeader, ResponseBar, dispoHint } from './Home'
@@ -95,7 +96,9 @@ export default function EventDetail() {
         {past && capOrStaff && <ResultForm eventId={id} initial={result} onSaved={() => q.reload()} />}
       </section>}
 
-      {!past && !staff && (
+      {isMatch && past && <MatchSheet eventId={id} players={players} canEdit={capOrStaff} />}
+
+      {!past && isPlayer(profile) && (
         <section className="card" style={{ gap: 12 }}>
           <div className="row">
             <Avatar p={profile} me lg />

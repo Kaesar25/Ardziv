@@ -38,13 +38,13 @@ export default function Members() {
             <div className="row">
               <Avatar p={p} me={p.id === profile?.id} />
               <div className="stack" style={{ gap: 1 }}>
-                <span style={{ fontWeight: 600 }}>{p.first_name} {p.last_name ?? ''}</span>
+                <span style={{ fontWeight: 600 }}>{p.first_name} {p.last_name ?? ''}{p.is_admin && <span className="gold" style={{ fontSize: 11, fontWeight: 700, marginLeft: 6 }}>ADMIN</span>}</span>
                 <span className="small muted">{p.position ?? ROLE_LABELS[p.role]}</span>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 4 }} className="segmented">
               {ROLES.map((r) => (
-                <button key={r} className={`segmented__btn ${p.role === r ? 'is-yes' : ''}`} style={{ minHeight: 38, fontSize: 12.5 }} disabled={busy === p.id || p.id === profile?.id} onClick={() => setRole(p, r)}>
+                <button key={r} className={`segmented__btn ${p.role === r ? 'is-yes' : ''}`} style={{ minHeight: 38, fontSize: 12.5 }} disabled={busy === p.id || p.id === profile?.id || (p.is_admin && !profile?.is_admin)} onClick={() => setRole(p, r)}>
                   {ROLE_LABELS[r]}
                 </button>
               ))}
@@ -52,7 +52,7 @@ export default function Members() {
           </div>
         ))}
       </div>
-      <p className="small muted">Tu ne peux pas changer ton propre rôle, pour éviter de te retirer l'accès par erreur.</p>
+      <p className="small muted">Tu ne peux pas changer ton propre rôle, pour éviter de te retirer l'accès par erreur. Le statut administrateur est réservé et ne peut être modifié par personne d'autre.</p>
     </>
   )
 }

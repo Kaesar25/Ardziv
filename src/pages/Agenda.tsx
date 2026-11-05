@@ -4,7 +4,7 @@ import { useAuth } from '../lib/auth'
 import { useAsync } from '../lib/useAsync'
 import { createEvent, fetchAvailabilities, fetchEvents, fetchProfiles } from '../lib/data'
 import { cap, fmtDay, fmtDow, fmtMonth, fmtTime } from '../lib/format'
-import { isStaff, type TeamEvent } from '../lib/types'
+import { isPlayer, isStaff, type TeamEvent } from '../lib/types'
 import { Chip, PageTitle, Skeleton } from '../components/ui'
 import { IconPlus } from '../components/Icons'
 import { dispoLabel } from './Home'
@@ -13,6 +13,7 @@ import { notify } from '../lib/push'
 export default function Agenda() {
   const { profile } = useAuth()
   const staff = isStaff(profile)
+  const player = isPlayer(profile)
   const [showForm, setShowForm] = useState(false)
 
   const q = useAsync(async () => {
@@ -62,8 +63,11 @@ export default function Agenda() {
                   </div>
                   <span style={{ fontWeight: 600 }}>{e.title}</span>
                   {e.location && <span className="small muted">{e.location}{e.is_home === false ? ' · extérieur' : ''}</span>}
-                  <span className="small" style={{ marginTop: 3, fontWeight: 600, color: mine || staff ? 'var(--muted)' : 'var(--gold)' }}>
-                    {staff ? `${yes} présent${yes > 1 ? 's' : ''} sur ${nPlayers}` : mine ? `Tu es ${dispoLabel(mine).toLowerCase()}` : 'Répondre'}
+                  <span className="small" style={{ marginTop: 3, fontWeight: 600, color: mine || !player ? 'var(--muted)' : 'var(--gold)' }}>
+                    {[
+                      player ? (mine ? `Tu es ${dispoLabel(mine).toLowerCase()}` : 'Répondre') : null,
+                      staff ? `${yes} présent${yes > 1 ? 's' : ''} sur ${nPlayers}` : null,
+                    ].filter(Boolean).join(' · ')}
                   </span>
                 </div>
               </Link>

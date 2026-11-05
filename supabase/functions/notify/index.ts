@@ -9,7 +9,7 @@ import webpush from 'npm:web-push@3.6.7'
 type Kind = 'test' | 'squad_published' | 'remind' | 'event_created' | 'result' | 'announcement' | 'daily_reminders'
 type Role = 'player' | 'captain' | 'coach' | 'staff'
 
-interface Profile { id: string; first_name: string; role: Role }
+interface Profile { id: string; first_name: string; role: Role; is_admin?: boolean }
 interface Ev { id: string; type: string; title: string; starts_at: string; opponent: string | null; is_home: boolean | null; matchday: string | null; location: string | null }
 interface Sub { endpoint: string; profile_id: string; p256dh: string; auth: string }
 interface Msg { title: string; body: string; url: string; tag?: string }
@@ -107,11 +107,11 @@ Deno.serve(async (req) => {
   const { data: userData } = await admin.auth.getUser(token)
   const uid = userData?.user?.id
   if (!uid) return json({ error: 'unauthenticated' }, 401)
-  const { data: me } = await admin.from('profiles').select('id, first_name, role').eq('id', uid).maybeSingle()
+  const { data: me } = await admin.from('profiles').select('id, first_name, role, is_admin').eq('id', uid).maybeSingle()
   const sender = me as Profile | null
   if (!sender) return json({ error: 'not_member' }, 403)
 
-  const allow = (roles: Role[]) => roles.includes(sender.role)
+  const allow = (roles: Role[]) => !!sender.is_admin || roles.includes(sender.role)
 
   switch (kind) {
     case 'test': {

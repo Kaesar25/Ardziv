@@ -13,6 +13,20 @@ export interface Profile {
   position: string | null
   number: number | null
   phone: string | null
+  is_admin: boolean
+}
+
+export interface Standing {
+  team: string
+  is_us: boolean
+  played: number
+  won: number
+  drawn: number
+  lost: number
+  goals_for: number
+  goals_against: number
+  points: number
+  updated_at: string
 }
 
 export interface TeamEvent {
@@ -90,5 +104,12 @@ export const ROLE_LABELS: Record<MemberRole, string> = {
   staff: 'Staff',
 }
 
-export const isStaff = (p: Profile | null) => !!p && (p.role === 'coach' || p.role === 'staff')
+/** Droits du staff : entraîneurs, dirigeants, et l'administrateur. */
+export const isStaff = (p: Profile | null) => !!p && (p.role === 'coach' || p.role === 'staff' || p.is_admin)
 export const isCaptainOrStaff = (p: Profile | null) => !!p && (p.role === 'captain' || isStaff(p))
+/** Joue dans l'équipe : donne ses dispos, apparaît dans les convocations. */
+export const isPlayer = (p: Profile | null) => !!p && (p.role === 'player' || p.role === 'captain')
+export const roleLabel = (p: Profile) => (p.is_admin ? `${ROLE_LABELS[p.role]} · Admin` : ROLE_LABELS[p.role])
+
+/** Seuil d'avertissements à surveiller (à ajuster selon le règlement du District). */
+export const YELLOW_ALERT = 2
